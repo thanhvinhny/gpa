@@ -12,7 +12,7 @@
     <h1 class="text-3xl font-bold text-center mb-6">ƯỚC LƯỢNG ĐIỂM GPA</h1>
     <div class="mb-4">
       <label for="dataInput" class="block text-lg font-medium mb-2">Dán vào:</label>
-      <textarea id="dataInput" rows="10" class="w-full p-2 border rounded-md" placeholder="Paste your data from the school website..."></textarea>
+      <textarea id="dataInput" rows="10" class="w-full p-2 border rounded-md" placeholder="Dán dữ liệu ở sv.dut... vào đây"></textarea>
       <button onclick="processData()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">TÍNH ĐIỂM GPA</button>
     </div>
 
@@ -59,7 +59,9 @@
       </table>
     </div>
     <div class="mt-6 text-center text-sm font-medium">
-      Contact: <a href="mailto:thanhvinhphanle@gmail.com" class="text-blue-500 hover:underline">thanhvinhphanle@gmail.com</a>
+      Contact: 
+      <a href="mailto:thanhvinhphanle@gmail.com" class="text-blue-500 hover:underline">thanhvinhphanle@gmail.com</a> | 
+      <a href="j2c.cc/admin" class="text-blue-500 hover:underline">Facebook: j2c.cc/admin</a>
     </div>
   </div>
 
@@ -307,7 +309,7 @@
         return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
       }
 
-      return { message: `Cần ${minACount} môn điểm A và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}}. ` };
+      return { message: `Cần ít nhất ${minACount} môn điểm A và ${bestBCount} môn điểm B (mỗi môn 3 tín chỉ) để đạt GPA ${desiredGPA} cho chương trình ${program === 'bachelor' ? 'Cử nhân' : 'Kĩ sư'} (${totalRequiredCredits} tín chỉ).` };
     }
 
     function calculateRequiredGradesUI() {
