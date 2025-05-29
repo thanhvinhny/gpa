@@ -309,7 +309,7 @@
         return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
       }
 
-      return { message: `Cần ít nhất ${minACount} môn điểm A và ${bestBCount} môn điểm B (mỗi môn 3 tín chỉ) để đạt GPA ${desiredGPA} cho chương trình ${program === 'bachelor' ? 'Cử nhân' : 'Kĩ sư'} (${totalRequiredCredits} tín chỉ).` };
+      return { message: `Cần ${minACount} môn điểm A và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}.` };
     }
 
     function calculateRequiredGradesUI() {
