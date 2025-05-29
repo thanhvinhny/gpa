@@ -1,43 +1,4 @@
-<script type="text/javascript">
-        var gk_isXlsx = false;
-        var gk_xlsxFileLookup = {};
-        var gk_fileData = {};
-        function filledCell(cell) {
-          return cell !== '' && cell != null;
-        }
-        function loadFileData(filename) {
-        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
-            try {
-                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
-                var firstSheetName = workbook.SheetNames[0];
-                var worksheet = workbook.Sheets[firstSheetName];
-
-                // Convert sheet to JSON to filter blank rows
-                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-                // Filter out blank rows (rows where all cells are empty, null, or undefined)
-                var filteredData = jsonData.filter(row => row.some(filledCell));
-
-                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
-                var headerRowIndex = filteredData.findIndex((row, index) =>
-                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
-                );
-                // Fallback
-                if (headerRowIndex === -1 || headerRowIndex > 25) {
-                  headerRowIndex = 0;
-                }
-
-                // Convert filtered JSON back to CSV
-                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
-                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
-                return csv;
-            } catch (e) {
-                console.error(e);
-                return "";
-            }
-        }
-        return gk_fileData[filename] || "";
-        }
-        </script><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -51,7 +12,7 @@
     <h1 class="text-3xl font-bold text-center mb-6">ƯỚC LƯỢNG ĐIỂM GPA</h1>
     <div class="mb-4">
       <label for="dataInput" class="block text-lg font-medium mb-2">Dán vào:</label>
-      <textarea id="dataInput" rows="10" class="w-full p-2 border rounded-md" placeholder="Paste your data from the school website..."></textarea>
+      <textarea id="dataInput" rows="10" class="w-full p-2 border rounded-md" placeholder="Dán dữ liệu ở trang sv.dut.udn.vn vào dây"></textarea>
       <button onclick="processData()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">TÍNH ĐIỂM GPA</button>
     </div>
 
@@ -59,6 +20,20 @@
       <span>GPA Kỳ (10): </span><span id="semesterGPA10" class="font-bold">0.00</span>
       <span class="ml-4">GPA Kỳ (4): </span><span id="semesterGPA4" class="font-bold">0.00</span>
     </div>
+
+    <div class="mb-4">
+      <h2 class="text-xl font-medium mb-2">Tính toán GPA mong muốn</h2>
+      <div class="flex flex-col gap-2">
+        <input id="desiredGPA" type="number" step="0.1" min="0" max="4" class="p-2 border rounded-md" placeholder="Nhập GPA mong muốn (hệ 4)">
+        <select id="programSelect" class="p-2 border rounded-md">
+          <option value="bachelor">Cử nhân (150 tín chỉ)</option>
+          <option value="engineer">Kĩ sư (180 tín chỉ)</option>
+        </select>
+        <button onclick="calculateRequiredGradesUI()" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Submit</button>
+      </div>
+    </div>
+
+    <div id="gradeAdvice" class="mt-4 text-lg font-medium"></div>
 
     <div id="result" class="mt-6">
       <table id="gpaTable" class="w-full border-collapse border bg-white">
@@ -87,26 +62,20 @@
   </div>
 
   <script>
-    // Biến toàn cục để lưu trữ GPA theo kỳ
     let semesterGPA = {};
 
     function calculateGPA10(subject) {
       const { formula, bt, ck, da, gk } = subject;
-      // Nếu không có điểm CK hoặc CK không hợp lệ, trả về 0.0
       if (ck === null || isNaN(ck)) return '0.0';
-
-      // Nếu không có công thức, trả về điểm CK trực tiếp
       if (!formula) return ck.toFixed(1);
-
       let gpa10 = 0;
       const parts = formula.split('+').map(part => part.trim());
       let hasValidScore = false;
-
       parts.forEach(part => {
         const [_, component, weight] = part.match(/\[(\w+)\]\*([\d\.]+)/) || [];
         const w = parseFloat(weight);
         if (component === 'CK') {
-          gpa10 += ck * w; // CK luôn được tính vì đã kiểm tra ở trên
+          gpa10 += ck * w;
           hasValidScore = true;
         }
         if (component === 'GK' && gk !== null && !isNaN(gk)) {
@@ -122,8 +91,7 @@
           hasValidScore = true;
         }
       });
-
-      return hasValidScore ? gpa10.toFixed(1) : ck.toFixed(1); // Nếu không có công thức hợp lệ, trả về điểm CK
+      return hasValidScore ? gpa10.toFixed(1) : ck.toFixed(1);
     }
 
     function calculateGPA4(gpa10) {
@@ -159,14 +127,14 @@
       const gpaSummary = document.getElementById('gpaSummary');
       tableBody.innerHTML = '';
       gpaSummary.innerHTML = '';
-      semesterGPA = {}; // Reset semesterGPA
+      semesterGPA = {};
 
       const subjects = [];
       rows.forEach(row => {
         const cols = row.split('\t').map(col => col.trim());
-        if (cols.length < 10) return; // Đảm bảo đủ cột
+        if (cols.length < 10) return;
         const subject = {
-          semester: cols[1] || '', // Kỳ/Năm học
+          semester: cols[1] || '',
           name: cols[4] || '',
           credits: parseFloat(cols[5]) || 0,
           formula: cols[6] || '',
@@ -182,7 +150,6 @@
       });
 
       subjects.forEach(subject => {
-        // Hiển thị tất cả các môn, kể cả khi thiếu điểm CK
         const row = document.createElement('tr');
         row.innerHTML = `
           <td class="border p-2">${subject.semester}</td>
@@ -199,7 +166,6 @@
         `;
         tableBody.appendChild(row);
 
-        // Chỉ tính GPA cho các môn có điểm CK hợp lệ
         if (subject.ck !== null && !isNaN(subject.ck)) {
           const sem = subject.semester;
           if (!semesterGPA[sem]) {
@@ -215,7 +181,6 @@
         }
       });
 
-      // Hiển thị GPA từng kỳ
       for (const [sem, data] of Object.entries(semesterGPA)) {
         const gpa10 = data.totalCredits ? (data.totalPoints10 / data.totalCredits).toFixed(2) : '0.00';
         const gpa4 = data.totalCredits ? (data.totalPoints4 / data.totalCredits).toFixed(2) : '0.00';
@@ -245,15 +210,13 @@
         semester: row.cells[0].textContent
       };
 
-      // Cập nhật GPA cho hàng hiện tại
       const gpa10 = calculateGPA10(subject);
       row.querySelector('.gpa10').textContent = gpa10;
       const gpa4 = calculateGPA4(gpa10);
       row.querySelector('.gpa4').textContent = gpa4;
       row.querySelector('.letter').textContent = getLetterGrade(gpa10);
 
-      // Cập nhật semesterGPA
-      semesterGPA = { }; // Reset để tính lại
+      semesterGPA = {};
       const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
       rows.forEach(row => {
         const credits = parseFloat(row.cells[2].textContent) || 0;
@@ -276,7 +239,6 @@
     }
 
     function updateSemesterGPA() {
-      // Tính GPA tổng cho tất cả các kỳ
       let totalPoints10 = 0;
       let totalPoints4 = 0;
       let totalCredits = 0;
@@ -293,8 +255,7 @@
       document.getElementById('semesterGPA10').textContent = semesterGPA10;
       document.getElementById('semesterGPA4').textContent = semesterGPA4;
 
-      // Hiển thị GPA của kỳ cụ thể (ví dụ: Kỳ 2/2024-2025)
-      const selectedSemester = "2/2024-2025"; // Cập nhật để khớp với dữ liệu đầu vào
+      const selectedSemester = "2/2024-2025";
       if (semesterGPA[selectedSemester]) {
         const gpa10 = semesterGPA[selectedSemester].totalCredits
           ? (semesterGPA[selectedSemester].totalPoints10 / semesterGPA[selectedSemester].totalCredits).toFixed(2)
@@ -305,6 +266,72 @@
         document.getElementById('semesterGPA10').textContent = gpa10;
         document.getElementById('semesterGPA4').textContent = gpa4;
       }
+    }
+
+    function calculateRequiredGrades(desiredGPA, totalCredits, currentPoints4, currentCredits) {
+      const program = document.getElementById('programSelect').value;
+      const totalRequiredCredits = program === 'bachelor' ? 150 : 180;
+      const remainingCredits = totalRequiredCredits - currentCredits;
+      if (remainingCredits <= 0) return { message: `Đã đủ số tín chỉ để tốt nghiệp (${totalRequiredCredits} tín chỉ).` };
+
+      const targetPoints = desiredGPA * totalRequiredCredits;
+      const remainingPoints = targetPoints - currentPoints4;
+
+      // Assume A = 4.0, B = 3.0, and each remaining course has 3 credits
+      const creditsPerCourse = 3;
+      const maxCourses = Math.ceil(remainingCredits / creditsPerCourse);
+
+      // Try combinations to minimize A grades
+      let minACount = Infinity;
+      let bestBCount = 0;
+      let possible = false;
+
+      for (let aCount = 0; aCount <= maxCourses; aCount++) {
+        const pointsFromA = aCount * 4.0 * creditsPerCourse;
+        const remainingPointsAfterA = remainingPoints - pointsFromA;
+        const bCount = Math.ceil(remainingPointsAfterA / (3.0 * creditsPerCourse));
+        const totalCourses = aCount + bCount;
+
+        if (remainingPointsAfterA >= 0 && totalCourses * creditsPerCourse <= remainingCredits && bCount >= 0) {
+          if (aCount < minACount) {
+            minACount = aCount;
+            bestBCount = bCount;
+            possible = true;
+          }
+        }
+      }
+
+      if (!possible) {
+        return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
+      }
+
+      return { message: `Cần ít nhất ${minACount} môn điểm A và ${bestBCount} môn điểm B (mỗi môn 3 tín chỉ) để đạt GPA ${desiredGPA} cho chương trình ${program === 'bachelor' ? 'Cử nhân' : 'Kĩ sư'} (${totalRequiredCredits} tín chỉ).` };
+    }
+
+    function calculateRequiredGradesUI() {
+      const desiredGPA = parseFloat(document.getElementById('desiredGPA').value);
+      if (isNaN(desiredGPA) || desiredGPA < 0 || desiredGPA > 4) {
+        alert("Vui lòng nhập GPA mong muốn hợp lệ (0-4).");
+        return;
+      }
+
+      // Calculate current GPA and credits
+      let totalPoints4 = 0;
+      let totalCredits = 0;
+      const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
+      rows.forEach(row => {
+        const credits = parseFloat(row.cells[2].textContent) || 0;
+        const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
+        const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
+        if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
+          totalPoints4 += gpa4 * credits;
+          totalCredits += credits;
+        }
+      });
+
+      // Calculate required grades
+      const gradeAdvice = calculateRequiredGrades(desiredGPA, totalCredits, totalPoints4, totalCredits);
+      document.getElementById('gradeAdvice').innerHTML = `<p>${gradeAdvice.message}</p>`;
     }
   </script>
 </body>
