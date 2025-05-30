@@ -6,8 +6,38 @@
   <title>ƯỚC LƯỢNG ĐIỂM GPA</title>
   <!-- Warning: Using Tailwind CSS CDN for development/prototyping only. For production, install as a PostCSS plugin or use Tailwind CLI: https://tailwindcss.com/docs/installation -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .modal {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      max-width: 90%;
+      text-align: center;
+    }
+    .modal-hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body class="bg-gray-100 p-6">
+  <!-- Mobile Warning Modal -->
+  <div id="mobileWarning" class="modal modal-hidden">
+    <div class="modal-content">
+      <h2 class="text-xl font-bold mb-4">THÔNG BÁO</h2>
+      <p class="mb-4">Hiện tại website chưa có giao diện cho mobile</p>
+      <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Đã đọc</button>
+    </div>
+  </div>
+
   <div class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-3xl font-bold text-center">ƯỚC LƯỢNG ĐIỂM GPA</h1>
@@ -72,6 +102,18 @@
   </div>
 
   <script>
+    // Show modal on mobile devices
+    window.onload = function() {
+      if (window.innerWidth < 768) {
+        document.getElementById('mobileWarning').classList.remove('modal-hidden');
+      }
+    };
+
+    // Close modal function
+    function closeModal() {
+      document.getElementById('mobileWarning').classList.add('modal-hidden');
+    }
+
     let semesterGPA = {};
 
     function calculateGPA10(subject) {
