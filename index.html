@@ -28,10 +28,11 @@
   </style>
 </head>
 <body class="bg-gray-100 p-6">
-  <div id="mobileWarning" class="modal modal-hidden">
+  <div id="appNotice" class="modal">
     <div class="modal-content">
       <h2 class="text-xl font-bold mb-4">THÔNG BÁO</h2>
-      <p class="mb-4">Hiện tại website chưa có giao diện cho mobile</p>
+      <p class="mb-4">Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
+      <p id="mobileNotice" class="mb-4 hidden">Hiện tại TINHGPA chưa có giao diện mobile</p>
       <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">OKE</button>
     </div>
   </div>
@@ -100,16 +101,16 @@
   </div>
 
   <script>
-    // Show modal on mobile devices
+    // Show notice modal and check for mobile
     window.onload = function() {
       if (window.innerWidth < 768) {
-        document.getElementById('mobileWarning').classList.remove('modal-hidden');
+        document.getElementById('mobileNotice').classList.remove('hidden');
       }
     };
 
     // Close modal function
     function closeModal() {
-      document.getElementById('mobileWarning').classList.add('modal-hidden');
+      document.getElementById('appNotice').classList.add('modal-hidden');
     }
 
     let semesterGPA = {};
