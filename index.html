@@ -183,7 +183,7 @@
         <td class="border p-2">${currentSemester}</td>
         <td class="border p-2"><input type="text" placeholder="Tên môn học" class="w-full p-1 border rounded"></td>
         <td class="border p-2"><input type="number" step="1" min="1" max="10" value="3" class="w-16 p-1 border rounded"></td>
-        <td class="border p-2">[CK]*0.60+[BT]*0.30+[GK]*0.10</td>
+        <td class="border p-2"><input type="text" value="[CK]*0.60+[BT]*0.30+[GK]*0.10" class="w-full p-1 border rounded" onchange="updateGPA(this)"></td>
         <td class="border p-2"><input type="number" step="0.1" min="0" max="10" class="w-16 p-1 border rounded" onchange="updateGPA(this)"></td>
         <td class="border p-2"><input type="number" step="0.1" min="0" max="10" class="w-16 p-1 border rounded" onchange="updateGPA(this)"></td>
         <td class="border p-2"><input type="number" step="0.1" min="0" max="10" class="w-16 p-1 border rounded" onchange="updateGPA(this)"></td>
@@ -276,7 +276,7 @@
     function updateGPA(input) {
       const row = input.parentElement.parentElement;
       const subject = {
-        formula: row.cells[3].textContent,
+        formula: row.cells[3].querySelector('input') ? row.cells[3].querySelector('input').value : row.cells[3].textContent,
         bt: parseFloat(row.cells[4].querySelector('input').value) || null,
         ck: parseFloat(row.cells[5].querySelector('input').value) || null,
         da: parseFloat(row.cells[6].querySelector('input').value) || null,
