@@ -32,6 +32,7 @@
     <div class="modal-content">
       <h2 class="text-xl font-bold mb-4">THÔNG BÁO</h2>
       <p class="mb-4">Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
+      <p class="mb-4 text-sm italic"><a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank" class="text-blue-500 hover:underline">Bạn chưa biết cách sử dụng TINHGPA?</a></p>
       <p id="mobileNotice" class="mb-4 hidden">Hiện tại TINHGPA chưa có giao diện mobile</p>
       <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">OKE</button>
     </div>
@@ -271,12 +272,11 @@
       const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
       rows.forEach(row => {
         const credits = parseFloat(row.cells[2].textContent) || 0;
-        const gpa10 = parseFloat(row.querySelector('.gpa10').textContent) || 0;
         const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
         const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
         const semester = row.cells[0].textContent;
 
-        if (credits > 0 && ck !== null && !isNaN(ck) && gpa10 > 0) {
+        if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
           if (!semesterGPA[semester]) {
             semesterGPA[semester] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
           }
