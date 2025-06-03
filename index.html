@@ -4,11 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ƯỚC LƯỢNG ĐIỂM GPA</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    body {
+      background-color: #f0f0f0;
+      font-family: "Times New Roman", Times, serif;
+      margin: 20px;
+      color: #000000;
+    }
+    h1 {
+      font-size: 24px;
+      text-align: center;
+      color: #000080;
+    }
+    h2 {
+      font-size: 18px;
+      color: #000080;
+    }
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border: 2px solid #000000;
+      padding: 10px;
+    }
     .modal {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background-color: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
@@ -16,100 +41,146 @@
       z-index: 1000;
     }
     .modal-content {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 0.5rem;
-      max-width: 90%;
+      background-color: #ffffff;
+      border: 2px solid #000000;
+      padding: 15px;
       text-align: center;
+      width: 400px;
     }
     .modal-hidden {
       display: none;
     }
+    textarea, input, select, button {
+      font-family: "Times New Roman", Times, serif;
+      font-size: 14px;
+      border: 1px solid #000000;
+      padding: 5px;
+      margin: 5px 0;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+    }
+    button {
+      background-color: #c0c0c0;
+      border: 2px outset #d3d3d3;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #d3d3d3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      border: 1px solid #000000;
+    }
+    th, td {
+      border: 1px solid #000000;
+      padding: 5px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #c0c0c0;
+      font-weight: bold;
+    }
+    a {
+      color: #0000ff;
+      text-decoration: underline;
+    }
+    a:hover {
+      color: #ff0000;
+    }
+    .gpa-display {
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 20px;
+    }
   </style>
 </head>
-<body class="bg-gray-100 p-6">
+<body>
   <div id="appNotice" class="modal">
     <div class="modal-content">
-      <h2 class="text-xl font-bold mb-4">THÔNG BÁO</h2>
-      <p class="mb-4">Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
-      <p class="mb-4 text-sm italic"><a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank" class="text-blue-500 hover:underline">Bạn chưa biết cách sử dụng TINHGPA?</a></p>
-      <p id="mobileNotice" class="mb-4 hidden">Hiện tại TINHGPA chưa có giao diện mobile</p>
-      <button onclick="closeModal()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">OKE</button>
+      <h2>THÔNG BÁO</h2>
+      <p>Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
+      <p><a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank">Bạn chưa biết cách sử dụng TINHGPA?</a></p>
+      <p id="mobileNotice" class="hidden">Hiện tại TINHGPA chưa có giao diện mobile</p>
+      <button onclick="closeModal()">OKE</button>
     </div>
   </div>
 
-  <div class="max-w-6xl mx-auto">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-center">ƯỚC LƯỢNG ĐIỂM GPA</h1>
-      <div class="flex gap-2">
-        <a href="https://nangbuoctuoitho.org/quyen-gop/" target="_blank" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">DONATE</a>
-        <a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">HƯỚNG DẪN</a>
-      </div>
-    </div>
-    <div class="mb-4">
-      <label for="dataInput" class="block text-lg font-medium mb-2">Dán vào:</label>
-      <textarea id="dataInput" rows="10" class="w-full p-2 border rounded-md" placeholder="Dán dữ liệu ở sv.dut.udn.vn vào đây"></textarea>
-      <button onclick="processData()" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">TÍNH ĐIỂM GPA</button>
+  <div class="container">
+    <h1>ƯỚC LƯỢNG ĐIỂM GPA</h1>
+    <div style="text-align: right; margin-bottom: 10px;">
+      <a href="https://nangbuoctuoitho.org/quyen-gop/" target="_blank">DONATE</a> | 
+      <a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank">HƯỚNG DẪN</a>
     </div>
 
-    <div class="mb-4 text-lg font-medium">
-      <span>GPA Kỳ (10): </span><span id="semesterGPA10" class="font-bold">0.00</span>
-      <span class="ml-4">GPA Kỳ (4): </span><span id="semesterGPA4" class="font-bold">0.00</span>
+    <div style="margin-bottom: 10px;">
+      <label for="dataInput">Dán vào:</label><br>
+      <textarea id="dataInput" placeholder="Dán dữ liệu ở sv.dut.udn.vn vào đây"></textarea><br>
+      <button onclick="processData()">TÍNH ĐIỂM GPA</button>
     </div>
 
-    <div class="mb-4">
-      <details class="bg-white border rounded-md p-4">
-        <summary class="text-xl font-medium cursor-pointer">Tính toán GPA mong muốn</summary>
-        <div class="mt-4 flex flex-col gap-2">
-          <input id="desiredGPA" type="number" step="0.1" min="0" max="4" class="p-2 border rounded-md" placeholder="Nhập GPA mong muốn (hệ 4)">
-          <select id="programSelect" class="p-2 border rounded-md">
-            <option value="bachelor">Cử nhân (150 tín chỉ)</option>
-            <option value="engineer">Kĩ sư (180 tín chỉ)</option>
-          </select>
-          <button onclick="calculateRequiredGradesUI()" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">KẾT QUẢ</button>
-        </div>
-      </details>
+    <div class="gpa-display">
+      <span>GPA Kỳ (10): </span><span id="semesterGPA10">0.00</span>
+      <span style="margin-left: 20px;">GPA Kỳ (4): </span><span id="semesterGPA4">0.00</span>
     </div>
 
-    <div id="gradeAdvice" class="mt-4 text-lg font-medium"></div>
+    <div style="margin-bottom: 10px;">
+      <h2>Tính toán GPA mong muốn</h2>
+      <input id="desiredGPA" type="number" step="0.1" min="0" max="4" placeholder="Nhập GPA mong muốn (hệ 4)">
+      <select id="programSelect">
+        <option value="bachelor">Cử nhân (150 tín chỉ)</option>
+        <option value="engineer">Kĩ sư (180 tín chỉ)</option>
+      </select><br>
+      <button onclick="calculateRequiredGradesUI()">KẾT QUẢ</button>
+    </div>
 
-    <div id="result" class="mt-6">
-      <table id="gpaTable" class="w-full border-collapse border bg-white">
+    <div id="gradeAdvice" style="margin-bottom: 10px;"></div>
+
+    <div id="result">
+      <table id="gpaTable">
         <thead>
-          <tr class="bg-gray-200">
-            <th class="border p-2">Kỳ/Năm học</th>
-            <th class="border p-2">Tên môn học</th>
-            <th class="border p-2">Số TC</th>
-            <th class="border p-2">Hệ số điểm</th>
-            <th class="border p-2">ĐIỂM BT</th>
-            <th class="border p-2">ĐIỂM CK</th>
-            <th class="border p-2">ĐIỂM DA</th>
-            <th class="border p-2">ĐIỂM GK</th>
-            <th class="border p-2">ĐIỂM GPA 10</th>
-            <th class="border p-2">ĐIỂM GPA 4</th>
-            <th class="border p-2">Chữ</th>
+          <tr>
+            <th>Kỳ/Năm học</th>
+            <th>Tên môn học</th>
+            <th>Số TC</th>
+            <th>Hệ số điểm</th>
+            <th>ĐIỂM BT</th>
+            <th>ĐIỂM CK</th>
+            <th>ĐIỂM DA</th>
+            <th>ĐIỂM GK</th>
+            <th>ĐIỂM GPA 10</th>
+            <th>ĐIỂM GPA 4</th>
+            <th>Chữ</th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
         <tfoot id="gpaSummary"></tfoot>
       </table>
     </div>
-    <div class="mt-6 text-center text-sm font-medium">
+
+    <div class="footer">
       Contact: 
-      <a href="mailto:thanhvinhphanle@gmail.com" class="text-blue-500 hover:underline">thanhvinhphanle@gmail.com</a> | 
-      Facebook: <a href="http://j2c.cc/admin" class="text-blue-500 hover:underline">j2c.cc/admin</a>
+      <a href="mailto:thanhvinhphanle@gmail.com">thanhvinhphanle@gmail.com</a> | 
+      Facebook: <a href="http://j2c.cc/admin">j2c.cc/admin</a>
     </div>
   </div>
 
   <script>
-    // Show notice modal and check for mobile
     window.onload = function() {
       if (window.innerWidth < 768) {
         document.getElementById('mobileNotice').classList.remove('hidden');
       }
     };
 
-    // Close modal function
     function closeModal() {
       document.getElementById('appNotice').classList.add('modal-hidden');
     }
@@ -204,17 +275,17 @@
       subjects.forEach(subject => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="border p-2">${subject.semester}</td>
-          <td class="border p-2">${subject.name}</td>
-          <td class="border p-2">${subject.credits || ''}</td>
-          <td class="border p-2">${subject.formula}</td>
-          <td class="border p-2"><input type="number" step="0.1" min="0" max="10" value="${subject.bt !== null ? subject.bt : ''}" onchange="updateGPA(this)" class="w-16 p-1 border rounded"></td>
-          <td class="border p-2"><input type="number" step="0.1" min="0" max="10" value="${subject.ck !== null ? subject.ck : ''}" onchange="updateGPA(this)" class="w-16 p-1 border rounded"></td>
-          <td class="border p-2"><input type="number" step="0.1" min="0" max="10" value="${subject.da !== null ? subject.da : ''}" onchange="updateGPA(this)" class="w-16 p-1 border rounded"></td>
-          <td class="border p-2"><input type="number" step="0.1" min="0" max="10" value="${subject.gk !== null ? subject.gk : ''}" onchange="updateGPA(this)" class="w-16 p-1 border rounded"></td>
-          <td class="border p-2 gpa10">${calculateGPA10(subject)}</td>
-          <td class="border p-2 gpa4">${calculateGPA4(calculateGPA10(subject))}</td>
-          <td class="border p-2 letter">${getLetterGrade(calculateGPA10(subject))}</td>
+          <td>${subject.semester}</td>
+          <td>${subject.name}</td>
+          <td>${subject.credits || ''}</td>
+          <td>${subject.formula}</td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.bt !== null ? subject.bt : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.ck !== null ? subject.ck : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.da !== null ? subject.da : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.gk !== null ? subject.gk : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
+          <td class="gpa10">${calculateGPA10(subject)}</td>
+          <td class="gpa4">${calculateGPA4(calculateGPA10(subject))}</td>
+          <td class="letter">${getLetterGrade(calculateGPA10(subject))}</td>
         `;
         tableBody.appendChild(row);
 
@@ -238,11 +309,11 @@
         const gpa4 = data.totalCredits ? (data.totalPoints4 / data.totalCredits).toFixed(2) : '0.00';
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td class="border p-2" colspan="2">${sem}</td>
-          <td class="border p-2" colspan="6"></td>
-          <td class="border p-2 font-bold">${gpa10}</td>
-          <td class="border p-2 font-bold">${gpa4}</td>
-          <td class="border p-2"></td>
+          <td colspan="2">${sem}</td>
+          <td colspan="6"></td>
+          <td>${gpa10}</td>
+          <td>${gpa4}</td>
+          <td></td>
         `;
         gpaSummary.appendChild(row);
       }
@@ -328,11 +399,9 @@
       const targetPoints = desiredGPA * totalRequiredCredits;
       const remainingPoints = targetPoints - currentPoints4;
 
-      // Assume A = 4.0, B = 3.0, and each remaining course has 3 credits
       const creditsPerCourse = 3;
       const maxCourses = Math.ceil(remainingCredits / creditsPerCourse);
 
-      // Try combinations to minimize A grades
       let minACount = Infinity;
       let bestBCount = 0;
       let possible = false;
@@ -366,7 +435,6 @@
         return;
       }
 
-      // Calculate current GPA and credits
       let totalPoints4 = 0;
       let totalCredits = 0;
       const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
@@ -380,7 +448,6 @@
         }
       });
 
-      // Calculate required grades
       const gradeAdvice = calculateRequiredGrades(desiredGPA, totalCredits, totalPoints4, totalCredits);
       document.getElementById('gradeAdvice').innerHTML = `<p>${gradeAdvice.message}</p>`;
     }
