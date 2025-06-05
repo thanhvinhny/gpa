@@ -102,6 +102,11 @@
       font-size: 12px;
       margin-top: 20px;
     }
+    .error {
+      color: red;
+      font-size: 14px;
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
@@ -126,6 +131,7 @@
       <label for="dataInput">Dán vào:</label><br>
       <textarea id="dataInput" placeholder="Dán dữ liệu ở sv.dut.udn.vn vào đây"></textarea><br>
       <button onclick="processData()">TÍNH ĐIỂM GPA</button>
+      <div id="errorMessage" class="error"></div>
     </div>
 
     <div class="gpa-display">
@@ -189,32 +195,63 @@
 
     function calculateGPA10(subject) {
       const { formula, bt, ck, da, gk } = subject;
-      if (ck === null || isNaN(ck)) return '0.0';
-      if (!formula) return ck.toFixed(1);
+
+      // Kiểm tra điểm CK bắt buộc
+      if (ck === null || isNaN(ck) || ck < 0 || ck > 10) {
+        document.getElementById('errorMessage').innerText = 'Điểm CK không hợp lệ (phải từ 0-10).';
+        return '0.0';
+      }
+
+      // Nếu không có công thức, trả về điểm CK
+      if (!formula) {
+        return ck.toFixed(1);
+      }
+
       let gpa10 = 0;
-      const parts = formula.split('+').map(part => part.trim());
+      let totalWeight = 0;
       let hasValidScore = false;
-      parts.forEach(part => {
-        const [_, component, weight] = part.match(/\[(\w+)\]\*([\d\.]+)/) || [];
+
+      // Tách công thức
+      const parts = formula.split('+').map(part => part.trim());
+      for (const part of parts) {
+        const match = part.match(/\[(\w+)\]\*([\d\.]+)/);
+        if (!match) {
+          document.getElementById('errorMessage').innerText = `Công thức sai định dạng: ${part}`;
+          return ck.toFixed(1);
+        }
+
+        const [, component, weight] = match;
         const w = parseFloat(weight);
-        if (component === 'CK') {
+        if (isNaN(w) || w < 0) {
+          document.getElementById('errorMessage').innerText = `Trọng số không hợp lệ: ${weight}`;
+          return ck.toFixed(1);
+        }
+        totalWeight += w;
+
+        // Xử lý từng thành phần điểm
+        if (component === 'CK' && ck !== null && !isNaN(ck) && ck >= 0 && ck <= 10) {
           gpa10 += ck * w;
           hasValidScore = true;
-        }
-        if (component === 'GK' && gk !== null && !isNaN(gk)) {
+        } else if (component === 'GK' && gk !== null && !isNaN(gk) && gk >= 0 && gk <= 10) {
           gpa10 += gk * w;
           hasValidScore = true;
-        }
-        if (component === 'BT' && bt !== null && !isNaN(bt)) {
+        } else if (component === 'BT' && bt !== null && !isNaN(bt) && bt >= 0 && bt <= 10) {
           gpa10 += bt * w;
           hasValidScore = true;
-        }
-        if (component === 'DA' && da !== null && !isNaN(da)) {
+        } else if (component === 'DA' && da !== null && !isNaN(da) && da >= 0 && da <= 10) {
           gpa10 += da * w;
           hasValidScore = true;
         }
-      });
-      return hasValidScore ? gpa10.toFixed(1) : ck.toFixed(1);
+      }
+
+      // Kiểm tra tổng trọng số
+      if (Math.abs(totalWeight - 1.0) > 0.01) {
+        document.getElementById('errorMessage').innerText = `Tổng trọng số không bằng 1: ${totalWeight}`;
+        return ck.toFixed(1);
+      }
+
+      // Trả về kết quả
+      return hasValidScore && gpa10 >= 0 && gpa10 <= 10 ? gpa10.toFixed(1) : ck.toFixed(1);
     }
 
     function calculateGPA4(gpa10) {
@@ -244,6 +281,7 @@
     }
 
     function processData() {
+      document.getElementById('errorMessage').innerText = ''; // Xóa thông báo lỗi cũ
       const dataInput = document.getElementById('dataInput').value;
       const rows = dataInput.split('\n').filter(row => row.trim() !== '');
       const tableBody = document.getElementById('tableBody');
@@ -322,6 +360,7 @@
     }
 
     function updateGPA(input) {
+      document.getElementById('errorMessage').innerText = ''; // Xóa thông báo lỗi cũ
       const row = input.parentElement.parentElement;
       const subject = {
         formula: row.cells[3].textContent,
@@ -344,6 +383,7 @@
       rows.forEach(row => {
         const credits = parseFloat(row.cells[2].textContent) || 0;
         const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
+        const gpa10 = parseFloat(row.querySelector('.gpa10').textContent) || 0;
         const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
         const semester = row.cells[0].textContent;
 
@@ -376,18 +416,6 @@
 
       document.getElementById('semesterGPA10').textContent = semesterGPA10;
       document.getElementById('semesterGPA4').textContent = semesterGPA4;
-
-      const selectedSemester = "2/2024-2025";
-      if (semesterGPA[selectedSemester]) {
-        const gpa10 = semesterGPA[selectedSemester].totalCredits
-          ? (semesterGPA[selectedSemester].totalPoints10 / semesterGPA[selectedSemester].totalCredits).toFixed(2)
-          : '0.00';
-        const gpa4 = semesterGPA[selectedSemester].totalCredits
-          ? (semesterGPA[selectedSemester].totalPoints4 / semesterGPA[selectedSemester].totalCredits).toFixed(2)
-          : '0.00';
-        document.getElementById('semesterGPA10').textContent = gpa10;
-        document.getElementById('semesterGPA4').textContent = gpa4;
-      }
     }
 
     function calculateRequiredGrades(desiredGPA, totalCredits, currentPoints4, currentCredits) {
