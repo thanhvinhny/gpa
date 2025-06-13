@@ -4,29 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ƯỚC LƯỢNG ĐIỂM GPA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
-      background-color: #f0f0f0;
-      font-family: "Times New Roman", Times, serif;
-      margin: 20px;
-      color: #000000;
+      background-color: #f4f7fa;
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #333;
     }
     h1 {
-      font-size: 24px;
+      font-size: 2rem;
       text-align: center;
-      color: #000080;
+      color: #2c3e50;
+      margin-bottom: 1.5rem;
     }
     h2 {
-      font-size: 18px;
-      color: #000080;
+      font-size: 1.25rem;
+      color: #2c3e50;
+      margin-bottom: 1rem;
     }
     .container {
       width: 90%;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
-      background-color: #ffffff;
-      border: 2px solid #000000;
-      padding: 10px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
     }
     .modal {
       position: fixed;
@@ -34,122 +39,181 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: rgba(0, 0, 0, 0.6);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 1000;
+      transition: opacity 0.3s ease;
     }
     .modal-content {
-      background-color: #ffffff;
-      border: 2px solid #000000;
-      padding: 15px;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 20px;
       text-align: center;
-      width: 400px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
     }
     .modal-hidden {
       display: none;
     }
     textarea, input, select, button {
-      font-family: "Times New Roman", Times, serif;
+      font-family: 'Roboto', sans-serif;
       font-size: 14px;
-      border: 1px solid #000000;
-      padding: 5px;
+      padding: 8px;
       margin: 5px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: border-color 0.2s ease;
+    }
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: #3498db;
     }
     textarea {
       width: 100%;
-      height: 200px;
+      height: 150px;
+      resize: vertical;
     }
     button {
-      background-color: #c0c0c0;
-      border: 2px outset #d3d3d3;
-      padding: 5px 10px;
+      background-color: #3498db;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
       cursor: pointer;
+      font-weight: 500;
+      transition: background-color 0.2s ease;
     }
     button:hover {
-      background-color: #d3d3d3;
+      background-color: #2980b9;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      background-color: #ffffff;
-      border: 1px solid #000000;
+      background-color: #fff;
+      margin-top: 1rem;
     }
     th, td {
-      border: 1px solid #000000;
-      padding: 5px;
+      border: 1px solid #eee;
+      padding: 10px;
       text-align: left;
       font-size: 14px;
     }
     th {
-      background-color: #c0c0c0;
-      font-weight: bold;
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: #2c3e50;
     }
     a {
-      color: #0000ff;
-      text-decoration: underline;
+      color: #3498db;
+      text-decoration: none;
+      transition: color 0.2s ease;
     }
     a:hover {
-      color: #ff0000;
+      color: #e74c3c;
     }
     .gpa-display {
-      font-size: 16px;
-      margin: 10px 0;
+      font-size: 1rem;
+      margin: 1rem 0;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
     }
     .footer {
       text-align: center;
       font-size: 12px;
-      margin-top: 20px;
+      color: #777;
+      margin-top: 2rem;
     }
     .error {
-      color: red;
+      color: #e74c3c;
       font-size: 14px;
       margin: 5px 0;
+    }
+    .links {
+      text-align: right;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .input-group {
+      margin-bottom: 1rem;
+    }
+    .input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      table {
+        font-size: 12px;
+      }
+      th, td {
+        padding: 8px;
+      }
+      .links {
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
-  <div id="appNotice" class="modal">
+  <div id="introModal" class="modal">
     <div class="modal-content">
       <h2>THÔNG BÁO</h2>
       <p>Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
       <p><a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank">Bạn chưa biết cách sử dụng TINHGPA?</a></p>
-      <p id="mobileNotice" class="hidden">Hiện tại TINHGPA chưa có giao diện mobile</p>
-      <button onclick="closeModal()">OKE</button>
+      <p id="mobileNotice" class="hidden">Hiện tại TINHGPA đã hỗ trợ giao diện mobile!</p>
+      <button onclick="closeModal()">Đóng</button>
     </div>
   </div>
 
   <div class="container">
     <h1>ƯỚC LƯỢNG ĐIỂM GPA</h1>
-    <div style="text-align: right; margin-bottom: 10px;">
-      <a href="https://nangbuoctuoitho.org/quyen-gop/" target="_blank">DONATE</a> | 
-      <a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank">HƯỚNG DẪN</a>
+    <div class="links">
+      <button onclick="window.location.href='https://nangbuoctuoitho.org/quyen-gop/'">DONATE</button>
+      <button onclick="window.location.href='https://github.com/taviny/tinhgpa/blob/main/README.md'">HƯỚNG DẪN</button>
     </div>
 
-    <div style="margin-bottom: 10px;">
-      <label for="dataInput">Dán vào:</label><br>
-      <textarea id="dataInput" placeholder="Dán dữ liệu ở sv.dut.udn.vn vào đây"></textarea><br>
-      <button onclick="processData()">TÍNH ĐIỂM GPA</button>
+    <div class="input-group">
+      <label for="dataInput">Dán dữ liệu từ sv.dut.udn.vn:</label>
+      <textarea id="dataInput" placeholder="Dán dữ liệu ở đây"></textarea>
+      <button onclick="processData()">TÍNH GPA</button>
       <div id="errorMessage" class="error"></div>
     </div>
 
     <div class="gpa-display">
-      <span>GPA Kỳ (10): </span><span id="semesterGPA10">0.00</span>
-      <span style="margin-left: 20px;">GPA Kỳ (4): </span><span id="semesterGPA4">0.00</span>
+      <span><strong>GPA Kỳ (10):</strong> <span id="semesterGPA10">0.00</span></span>
+      <span><strong>GPA Kỳ (4):</strong> <span id="semesterGPA4">0.00</span></span>
     </div>
 
-    <div style="margin-bottom: 10px;">
+    <div class="input-group">
       <h2>Tính toán GPA mong muốn</h2>
-      <input id="desiredGPA" type="number" step="0.1" min="0" max="4" placeholder="Nhập GPA mong muốn (hệ 4)">
-      <select id="programSelect">
-        <option value="bachelor">Cử nhân (150 tín chỉ)</option>
-        <option value="engineer">Kĩ sư (180 tín chỉ)</option>
-      </select><br>
-      <button onclick="calculateRequiredGradesUI()">KẾT QUẢ</button>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input id="desiredGPA" type="number" step="0.1" min="0" max="4" placeholder="GPA mong muốn (hệ 4)">
+        <select id="programSelect">
+          <option value="bachelor">Cử nhân (150 tín chỉ)</option>
+          <option value="engineer">Kĩ sư (180 tín chỉ)</option>
+        </select>
+        <button onclick="calculateRequiredGradesUI()">TÍNH KẾT QUẢ</button>
+      </div>
     </div>
 
-    <div id="gradeAdvice" style="margin-bottom: 10px;"></div>
+    <div id="gradeAdvice" class="input-group"></div>
 
     <div id="result">
       <table id="gpaTable">
@@ -188,7 +252,7 @@
     };
 
     function closeModal() {
-      document.getElementById('appNotice').classList.add('modal-hidden');
+      document.getElementById('introModal').classList.add('modal-hidden');
     }
 
     let semesterGPA = {};
@@ -196,13 +260,11 @@
     function calculateGPA10(subject) {
       const { formula, bt, ck, da, gk } = subject;
 
-      // Kiểm tra điểm CK bắt buộc
       if (ck === null || isNaN(ck) || ck < 0 || ck > 10) {
         document.getElementById('errorMessage').innerText = 'Điểm CK không hợp lệ (phải từ 0-10).';
         return '0.0';
       }
 
-      // Nếu không có công thức, trả về điểm CK
       if (!formula) {
         return ck.toFixed(1);
       }
@@ -211,7 +273,6 @@
       let totalWeight = 0;
       let hasValidScore = false;
 
-      // Tách công thức
       const parts = formula.split('+').map(part => part.trim());
       for (const part of parts) {
         const match = part.match(/\[(\w+)\]\*([\d\.]+)/);
@@ -228,7 +289,6 @@
         }
         totalWeight += w;
 
-        // Xử lý từng thành phần điểm
         if (component === 'CK' && ck !== null && !isNaN(ck) && ck >= 0 && ck <= 10) {
           gpa10 += ck * w;
           hasValidScore = true;
@@ -244,13 +304,11 @@
         }
       }
 
-      // Kiểm tra tổng trọng số
       if (Math.abs(totalWeight - 1.0) > 0.01) {
         document.getElementById('errorMessage').innerText = `Tổng trọng số không bằng 1: ${totalWeight}`;
         return ck.toFixed(1);
       }
 
-      // Trả về kết quả
       return hasValidScore && gpa10 >= 0 && gpa10 <= 10 ? gpa10.toFixed(1) : ck.toFixed(1);
     }
 
@@ -281,7 +339,7 @@
     }
 
     function processData() {
-      document.getElementById('errorMessage').innerText = ''; // Xóa thông báo lỗi cũ
+      document.getElementById('errorMessage').innerText = '';
       const dataInput = document.getElementById('dataInput').value;
       const rows = dataInput.split('\n').filter(row => row.trim() !== '');
       const tableBody = document.getElementById('tableBody');
@@ -293,24 +351,27 @@
       const subjects = [];
       rows.forEach(row => {
         const cols = row.split('\t').map(col => col.trim());
-        if (cols.length < 10) return;
+        if (cols.length < 11) {
+          document.getElementById('errorMessage').innerText = 'Dữ liệu đầu vào không đủ cột!';
+          return;
+        }
         const subject = {
           semester: cols[1] || '',
           name: cols[4] || '',
           credits: parseFloat(cols[5]) || 0,
           formula: cols[6] || '',
-          bt: parseFloat(cols[7]) || null,
-          ck: parseFloat(cols[8]) || null,
-          da: parseFloat(cols[9]) || null,
-          gk: parseFloat(cols[10]) || null,
-          gpa10: parseFloat(cols[11]) || null,
-          gpa4: parseFloat(cols[12]) || null,
-          letter: cols[13] || ''
+          bt: cols[7] ? parseFloat(cols[7]) : null,
+          ck: cols[8] ? parseFloat(cols[8]) : null,
+          da: cols[9] ? parseFloat(cols[9]) : null,
+          gk: cols[10] ? parseFloat(cols[10]) : null
         };
         subjects.push(subject);
       });
 
       subjects.forEach(subject => {
+        const gpa10 = calculateGPA10(subject);
+        const gpa4 = calculateGPA4(gpa10);
+        const letter = getLetterGrade(gpa10);
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${subject.semester}</td>
@@ -321,9 +382,9 @@
           <td><input type="number" step="0.1" min="0" max="10" value="${subject.ck !== null ? subject.ck : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
           <td><input type="number" step="0.1" min="0" max="10" value="${subject.da !== null ? subject.da : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
           <td><input type="number" step="0.1" min="0" max="10" value="${subject.gk !== null ? subject.gk : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
-          <td class="gpa10">${calculateGPA10(subject)}</td>
-          <td class="gpa4">${calculateGPA4(calculateGPA10(subject))}</td>
-          <td class="letter">${getLetterGrade(calculateGPA10(subject))}</td>
+          <td class="gpa10">${gpa10}</td>
+          <td class="gpa4">${gpa4}</td>
+          <td class="letter">${letter}</td>
         `;
         tableBody.appendChild(row);
 
@@ -332,11 +393,11 @@
           if (!semesterGPA[sem]) {
             semesterGPA[sem] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
           }
-          const gpa10 = parseFloat(calculateGPA10(subject)) || 0;
-          const gpa4 = parseFloat(calculateGPA4(gpa10)) || 0;
-          if (subject.credits > 0 && gpa10 > 0) {
-            semesterGPA[sem].totalPoints10 += gpa10 * subject.credits;
-            semesterGPA[sem].totalPoints4 += gpa4 * subject.credits;
+          const gpa10Val = parseFloat(gpa10) || 0;
+          const gpa4Val = parseFloat(gpa4) || 0;
+          if (subject.credits > 0 && gpa10Val > 0) {
+            semesterGPA[sem].totalPoints10 += gpa10Val * subject.credits;
+            semesterGPA[sem].totalPoints4 += gpa4Val * subject.credits;
             semesterGPA[sem].totalCredits += subject.credits;
           }
         }
@@ -360,7 +421,7 @@
     }
 
     function updateGPA(input) {
-      document.getElementById('errorMessage').innerText = ''; // Xóa thông báo lỗi cũ
+      document.getElementById('errorMessage').innerText = '';
       const row = input.parentElement.parentElement;
       const subject = {
         formula: row.cells[3].textContent,
