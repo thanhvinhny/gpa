@@ -1,361 +1,625 @@
-<div class="container">
-      <i class="fas fa-moon dark-mode-toggle" onclick="toggleDarkMode()"></i>
-      <h1>ƯỚC LƯỢNG ĐIỂM GPA</h1>
-      <div class="links">
-        <button onclick="window.open('https://github.com/taviny/tinhgpa/blob/main/README.md', '_blank')">HƯỚNG DẪN</button>
-      </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ƯỚC LƯỢNG ĐIỂM GPA - Giao Diện Excel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #005b9f; /* Blue inspired by Excel */
+      --secondary-color: #4a90e2; /* Lighter blue for accents */
+      --accent-color: #ff6f61; /* Coral for highlights */
+      --bg-color: #f4f6f8; /* Light gray background */
+      --text-color: #1f2a44; /* Dark text for readability */
+      --card-bg: #ffffff; /* White card background */
+      --grid-border: #d1d5db; /* Excel-like grid lines */
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-      <div class="input-group">
-        <label for="dataInput">Dán dữ liệu từ sv.dut.udn.vn:</label>
-        <textarea id="dataInput" placeholder="Dán dữ liệu ở đây"></textarea>
-        <button onclick="processData()">TÍNH GPA</button>
-        <div id="errorMessage" class="error"></div>
-      </div>
+    body {
+      background: var(--bg-color);
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
 
-      <div class="gpa-display">
-        <span><strong>GPA Kỳ (10):</strong> <span id="semesterGPA10">0.00</span></span>
-        <span><strong>GPA Kỳ (4):</strong> <span id="semesterGPA4">0.00</span></span>
-      </div>
+    .container {
+      width: 95%;
+      max-width: 1400px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeIn 0.5s ease-out;
+    }
 
-      <div class="input-group">
-        <h2>Tính toán GPA mong muốn</h2>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <input id="desiredGPA" type="number" step="0.1" min="0" max="4" placeholder="GPA mong muốn (hệ 4)">
-          <select id="programSelect">
-            <option value="bachelor">Cử nhân (150 tín chỉ)</option>
-            <option value="engineer">Kĩ sư (180 tín chỉ)</option>
-          </select>
-          <button onclick="calculateRequiredGradesUI()">TÍNH KẾT QUẢ</button>
-        </div>
-      </div>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-      <div id="gradeAdvice" class="input-group"></div>
+    h1 {
+      font-size: 2rem;
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
 
-      <div id="result">
-        <table id="gpaTable">
-          <thead>
-            <tr>
-              <th>Kỳ/Năm học</th>
-              <th>Tên môn học</th>
-              <th>Số TC</th>
-              <th>Hệ số điểm</th>
-              <th>ĐIỂM BT</th>
-              <th>ĐIỂM CK</th>
-              <th>ĐIỂM DA</th>
-              <th>ĐIỂM GK</th>
-              <th>ĐIỂM GPA 10</th>
-              <th>ĐIỂM GPA 4</th>
-              <th>Chữ</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-          <tfoot id="gpaSummary"></tfoot>
-        </table>
-      </div>
+    h2 {
+      font-size: 1.3rem;
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
 
-      <div class="footer">
-        Contact: 
-        <a href="mailto:thanhvinhphanle@gmail.com">thanhvinhphanle@gmail.com</a> | 
-        Facebook: <a href="http://j2c.cc/admin">j2c.cc/admin</a>
+    .links {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    textarea, input, select {
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 8px;
+      margin: 5px 0;
+      border: 1px solid var(--grid-border);
+      border-radius: 4px;
+      background: #fff;
+      transition: border-color 0.3s ease;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+    }
+
+    textarea {
+      width: 100%;
+      height: 120px;
+      resize: vertical;
+      border-radius: 4px;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--text-color);
+      font-size: 13px;
+    }
+
+    .gpa-display {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+      padding: 15px;
+      background: #f8f9fa;
+      border: 1px solid var(--grid-border);
+      border-radius: 6px;
+    }
+
+    .gpa-display span {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .excel-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1.5rem;
+      background: #fff;
+      border: 1px solid var(--grid-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid var(--grid-border);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 13px;
+      background: #fff;
+      transition: background 0.2s ease;
+    }
+
+    th {
+      background: var(--primary-color);
+      color: #fff;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    td:hover {
+      background: #f1f5f9;
+    }
+
+    td input {
+      width: 60px;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      padding: 6px;
+      font-size: 13px;
+    }
+
+    .excel-table th {
+      resize: horizontal;
+      min-width: 50px;
+      cursor: col-resize;
+    }
+
+    .excel-table tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    .excel-table tfoot tr {
+      background: #e6e8eb;
+      font-weight: 600;
+    }
+
+    .error {
+      color: #dc2626;
+      font-size: 13px;
+      margin: 8px 0;
+      padding: 8px;
+      background: rgba(220, 38, 38, 0.1);
+      border-radius: 4px;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--grid-border);
+    }
+
+    .footer a {
+      color: var(--accent-color);
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+      color: var(--secondary-color);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      h2 {
+        font-size: 1.2rem;
+      }
+      .gpa-display {
+        flex-direction: column;
+        gap: 10px;
+      }
+      .excel-table {
+        font-size: 12px;
+      }
+      th, td {
+        padding: 6px;
+      }
+      td input {
+        width: 50px;
+      }
+      button {
+        padding: 8px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ƯỚC LƯỢNG ĐIỂM GPA</h1>
+    <div class="links">
+      <button onclick="window.open('https://github.com/taviny/tinhgpa/blob/main/README.md', '_blank')">HƯỚNG DẪN</button>
+    </div>
+
+    <div class="input-group">
+      <label for="dataInput">Dán dữ liệu từ sv.dut.udn.vn:</label>
+      <textarea id="dataInput" placeholder="Dán dữ liệu ở đây"></textarea>
+      <button onclick="processData()">TÍNH GPA</button>
+      <div id="errorMessage" class="error"></div>
+    </div>
+
+    <div class="gpa-display">
+      <span><strong>GPA Kỳ (10):</strong> <span id="semesterGPA10">0.00</span></span>
+      <span><strong>GPA Kỳ (4):</strong> <span id="semesterGPA4">0.00</span></span>
+    </div>
+
+    <div class="input-group">
+      <h2>Tính toán GPA mong muốn</h2>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input id="desiredGPA" type="number" step="0.1" min="0" max="4" placeholder="GPA mong muốn (hệ 4)">
+        <select id="programSelect">
+          <option value="bachelor">Cử nhân (150 tín chỉ)</option>
+          <option value="engineer">Kĩ sư (180 tín chỉ)</option>
+        </select>
+        <button onclick="calculateRequiredGradesUI()">TÍNH KẾT QUẢ</button>
       </div>
     </div>
 
-    <script>
-      function toggleDarkMode() {
-        document.body.classList.toggle('dark');
-        const icon = document.querySelector('.dark-mode-toggle');
-        icon.classList.toggle('fa-moon');
-        icon.classList.toggle('fa-sun');
+    <div id="gradeAdvice" class="input-group"></div>
+
+    <div id="result">
+      <table id="gpaTable" class="excel-table">
+        <thead>
+          <tr>
+            <th style="min-width: 100px;">Kỳ/Năm học</th>
+            <th style="min-width: 200px;">Tên môn học</th>
+            <th style="min-width: 60px;">Số TC</th>
+            <th style="min-width: 100px;">Hệ số điểm</th>
+            <th style="min-width: 80px;">ĐIỂM BT</th>
+            <th style="min-width: 80px;">ĐIỂM CK</th>
+            <th style="min-width: 80px;">ĐIỂM DA</th>
+            <th style="min-width: 80px;">ĐIỂM GK</th>
+            <th style="min-width: 80px;">ĐIỂM GPA 10</th>
+            <th style="min-width: 80px;">ĐIỂM GPA 4</th>
+            <th style="min-width: 60px;">Chữ</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot id="gpaSummary"></tfoot>
+      </table>
+    </div>
+
+    <div class="footer">
+      Contact: 
+      <a href="mailto:thanhvinhphanle@gmail.com">thanhvinhphanle@gmail.com</a> | 
+      Facebook: <a href="http://j2c.cc/admin">j2c.cc/admin</a>
+    </div>
+  </div>
+
+  <script>
+    let semesterGPA = {};
+
+    function calculateGPA10(subject) {
+      const { formula, bt, ck, da, gk } = subject;
+
+      if (!formula) {
+        return ck !== null && !isNaN(ck) ? ck.toFixed(1) : '0.0';
       }
 
-      let semesterGPA = {};
+      let gpa10 = 0;
+      let totalWeight = 0;
+      let hasValidScore = false;
 
-      function calculateGPA10(subject) {
-        const { formula, bt, ck, da, gk } = subject;
-
-        if (ck === null || isNaN(ck) || ck < 0 || ck > 10) {
-          document.getElementById('errorMessage').innerText = 'Điểm CK không hợp lệ (phải từ 0-10).';
-          return '0.0';
+      const parts = formula.split('+').map(part => part.trim());
+      for (const part of parts) {
+        const match = part.match(/\[(\w+)\]\*([\d\.]+)/);
+        if (!match) {
+          return ck !== null && !isNaN(ck) ? ck.toFixed(1) : '0.0';
         }
 
-        if (!formula) {
-          return ck.toFixed(1);
+        const [, component, weight] = match;
+        const w = parseFloat(weight);
+        if (isNaN(w) || w < 0) {
+          return ck !== null && !isNaN(ck) ? ck.toFixed(1) : '0.0';
         }
+        totalWeight += w;
 
-        let gpa10 = 0;
-        let totalWeight = 0;
-        let hasValidScore = false;
-
-        const parts = formula.split('+').map(part => part.trim());
-        for (const part of parts) {
-          const match = part.match(/\[(\w+)\]\*([\d\.]+)/);
-          if (!match) {
-            document.getElementById('errorMessage').innerText = `Công thức sai định dạng: ${part}`;
-            return ck.toFixed(1);
-          }
-
-          const [, component, weight] = match;
-          const w = parseFloat(weight);
-          if (isNaN(w) || w < 0) {
-            document.getElementById('errorMessage').innerText = `Trọng số không hợp lệ: ${weight}`;
-            return ck.toFixed(1);
-          }
-          totalWeight += w;
-
-          if (component === 'CK' && ck !== null && !isNaN(ck) && ck >= 0 && ck <= 10) {
-            gpa10 += ck * w;
-            hasValidScore = true;
-          } else if (component === 'GK' && gk !== null && !isNaN(gk) && gk >= 0 && gk <= 10) {
-            gpa10 += gk * w;
-            hasValidScore = true;
-          } else if (component === 'BT' && bt !== null && !isNaN(bt) && bt >= 0 && bt <= 10) {
-            gpa10 += bt * w;
-            hasValidScore = true;
-          } else if (component === 'DA' && da !== null && !isNaN(da) && da >= 0 && da <= 10) {
-            gpa10 += da * w;
-            hasValidScore = true;
-          }
+        if (component === 'CK' && ck !== null && !isNaN(ck) && ck >= 0 && ck <= 10) {
+          gpa10 += ck * w;
+          hasValidScore = true;
+        } else if (component === 'GK' && gk !== null && !isNaN(gk) && gk >= 0 && gk <= 10) {
+          gpa10 += gk * w;
+          hasValidScore = true;
+        } else if (component === 'BT' && bt !== null && !isNaN(bt) && bt >= 0 && bt <= 10) {
+          gpa10 += bt * w;
+          hasValidScore = true;
+        } else if (component === 'DA' && da !== null && !isNaN(da) && da >= 0 && da <= 10) {
+          gpa10 += da * w;
+          hasValidScore = true;
         }
-
-        if (Math.abs(totalWeight - 1.0) > 0.01) {
-          document.getElementById('errorMessage').innerText = `Tổng trọng số không bằng 1: ${totalWeight}`;
-          return ck.toFixed(1);
-        }
-
-        return hasValidScore && gpa10 >= 0 && gpa10 <= 10 ? gpa10.toFixed(1) : ck.toFixed(1);
       }
 
-      function calculateGPA4(gpa10) {
-        gpa10 = parseFloat(gpa10) || 0;
-        if (gpa10 >= 9.5) return 4.0;
-        if (gpa10 >= 8.5) return 4.0;
-        if (gpa10 >= 8.0) return 3.5;
-        if (gpa10 >= 7.0) return 3.0;
-        if (gpa10 >= 6.5) return 2.5;
-        if (gpa10 >= 5.5) return 2.0;
-        if (gpa10 >= 5.0) return 1.5;
-        if (gpa10 >= 4.0) return 1.0;
-        return 0;
+      if (Math.abs(totalWeight - 1.0) > 0.01) {
+        return ck !== null && !isNaN(ck) ? ck.toFixed(1) : '0.0';
       }
 
-      function getLetterGrade(gpa10) {
-        gpa10 = parseFloat(gpa10) || 0;
-        if (gpa10 >= 9.5) return 'A+';
-        if (gpa10 >= 8.5) return 'A';
-        if (gpa10 >= 8.0) return 'B+';
-        if (gpa10 >= 7.0) return 'B';
-        if (gpa10 >= 6.5) return 'C+';
-        if (gpa10 >= 5.5) return 'C';
-        if (gpa10 >= 5.0) return 'D+';
-        if (gpa10 >= 4.0) return 'D';
-        return 'F';
-      }
+      return hasValidScore && gpa10 >= 0 && gpa10 <= 10 ? gpa10.toFixed(1) : (ck !== null && !isNaN(ck) ? ck.toFixed(1) : '0.0');
+    }
 
-      function processData() {
-        document.getElementById('errorMessage').innerText = '';
-        const dataInput = document.getElementById('dataInput').value;
-        const rows = dataInput.split('\n').filter(row => row.trim() !== '');
-        const tableBody = document.getElementById('tableBody');
-        const gpaSummary = document.getElementById('gpaSummary');
-        tableBody.innerHTML = '';
-        gpaSummary.innerHTML = '';
-        semesterGPA = {};
+    function calculateGPA4(gpa10) {
+      gpa10 = parseFloat(gpa10) || 0;
+      if (gpa10 >= 9.5) return 4.0;
+      if (gpa10 >= 8.5) return 4.0;
+      if (gpa10 >= 8.0) return 3.5;
+      if (gpa10 >= 7.0) return 3.0;
+      if (gpa10 >= 6.5) return 2.5;
+      if (gpa10 >= 5.5) return 2.0;
+      if (gpa10 >= 5.0) return 1.5;
+      if (gpa10 >= 4.0) return 1.0;
+      return 0;
+    }
 
-        const subjects = [];
-        rows.forEach(row => {
-          const cols = row.split('\t').map(col => col.trim());
-          if (cols.length < 11) {
-            document.getElementById('errorMessage').innerText = 'Dữ liệu đầu vào không đủ cột!';
-            return;
-          }
-          const subject = {
-            semester: cols[1] || '',
-            name: cols[4] || '',
-            credits: parseFloat(cols[5]) || 0,
-            formula: cols[6] || '',
-            bt: cols[7] ? parseFloat(cols[7]) : null,
-            ck: cols[8] ? parseFloat(cols[8]) : null,
-            da: cols[9] ? parseFloat(cols[9]) : null,
-            gk: cols[10] ? parseFloat(cols[10]) : null
-          };
-          subjects.push(subject);
-        });
+    function getLetterGrade(gpa10) {
+      gpa10 = parseFloat(gpa10) || 0;
+      if (gpa10 >= 9.5) return 'A+';
+      if (gpa10 >= 8.5) return 'A';
+      if (gpa10 >= 8.0) return 'B+';
+      if (gpa10 >= 7.0) return 'B';
+      if (gpa10 >= 6.5) return 'C+';
+      if (gpa10 >= 5.5) return 'C';
+      if (gpa10 >= 5.0) return 'D+';
+      if (gpa10 >= 4.0) return 'D';
+      return 'F';
+    }
 
-        subjects.forEach(subject => {
-          const gpa10 = calculateGPA10(subject);
-          const gpa4 = calculateGPA4(gpa10);
-          const letter = getLetterGrade(gpa10);
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${subject.semester}</td>
-            <td>${subject.name}</td>
-            <td>${subject.credits || ''}</td>
-            <td>${subject.formula}</td>
-            <td><input type="number" step="0.1" min="0" max="10" value="${subject.bt !== null ? subject.bt : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
-            <td><input type="number" step="0.1" min="0" max="10" value="${subject.ck !== null ? subject.ck : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
-            <td><input type="number" step="0.1" min="0" max="10" value="${subject.da !== null ? subject.da : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
-            <td><input type="number" step="0.1" min="0" max="10" value="${subject.gk !== null ? subject.gk : ''}" onchange="updateGPA(this)" style="width: 60px;"></td>
-            <td class="gpa10">${gpa10}</td>
-            <td class="gpa4">${gpa4}</td>
-            <td class="letter">${letter}</td>
-          `;
-          tableBody.appendChild(row);
+    function processData() {
+      document.getElementById('errorMessage').innerText = '';
+      const dataInput = document.getElementById('dataInput').value;
+      const rows = dataInput.split('\n').filter(row => row.trim() !== '');
+      const tableBody = document.getElementById('tableBody');
+      const gpaSummary = document.getElementById('gpaSummary');
+      tableBody.innerHTML = '';
+      gpaSummary.innerHTML = '';
+      semesterGPA = {};
 
-          if (subject.ck !== null && !isNaN(subject.ck)) {
-            const sem = subject.semester;
-            if (!semesterGPA[sem]) {
-              semesterGPA[sem] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
-            }
-            const gpa10Val = parseFloat(gpa10) || 0;
-            const gpa4Val = parseFloat(gpa4) || 0;
-            if (subject.credits > 0 && gpa10Val > 0) {
-              semesterGPA[sem].totalPoints10 += gpa10Val * subject.credits;
-              semesterGPA[sem].totalPoints4 += gpa4Val * subject.credits;
-              semesterGPA[sem].totalCredits += subject.credits;
-            }
-          }
-        });
-
-        for (const [sem, data] of Object.entries(semesterGPA)) {
-          const gpa10 = data.totalCredits ? (data.totalPoints10 / data.totalCredits).toFixed(2) : '0.00';
-          const gpa4 = data.totalCredits ? (data.totalPoints4 / data.totalCredits).toFixed(2) : '0.00';
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td colspan="2">${sem}</td>
-            <td colspan="6"></td>
-            <td>${gpa10}</td>
-            <td>${gpa4}</td>
-            <td></td>
-          `;
-          gpaSummary.appendChild(row);
-        }
-
-        updateSemesterGPA();
-      }
-
-      function updateGPA(input) {
-        document.getElementById('errorMessage').innerText = '';
-        const row = input.parentElement.parentElement;
-        const subject = {
-          formula: row.cells[3].textContent,
-          bt: parseFloat(row.cells[4].querySelector('input').value) || null,
-          ck: parseFloat(row.cells[5].querySelector('input').value) || null,
-          da: parseFloat(row.cells[6].querySelector('input').value) || null,
-          gk: parseFloat(row.cells[7].querySelector('input').value) || null,
-          credits: parseFloat(row.cells[2].textContent) || 0,
-          semester: row.cells[0].textContent
-        };
-
-        const gpa10 = calculateGPA10(subject);
-        row.querySelector('.gpa10').textContent = gpa10;
-        const gpa4 = calculateGPA4(gpa10);
-        row.querySelector('.gpa4').textContent = gpa4;
-        row.querySelector('.letter').textContent = getLetterGrade(gpa10);
-
-        semesterGPA = {};
-        const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
-        rows.forEach(row => {
-          const credits = parseFloat(row.cells[2].textContent) || 0;
-          const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
-          const gpa10 = parseFloat(row.querySelector('.gpa10').textContent) || 0;
-          const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
-          const semester = row.cells[0].textContent;
-
-          if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
-            if (!semesterGPA[semester]) {
-              semesterGPA[semester] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
-            }
-            semesterGPA[semester].totalPoints10 += gpa10 * credits;
-            semesterGPA[semester].totalPoints4 += gpa4 * credits;
-            semesterGPA[semester].totalCredits += credits;
-          }
-        });
-
-        updateSemesterGPA();
-      }
-
-      function updateSemesterGPA() {
-        let totalPoints10 = 0;
-        let totalPoints4 = 0;
-        let totalCredits = 0;
-
-        for (const [sem, data] of Object.entries(semesterGPA)) {
-          totalPoints10 += data.totalPoints10;
-          totalPoints4 += data.totalPoints4;
-          totalCredits += data.totalCredits;
-        }
-
-        const semesterGPA10 = totalCredits ? (totalPoints10 / totalCredits).toFixed(2) : '0.00';
-        const semesterGPA4 = totalCredits ? (totalPoints4 / totalCredits).toFixed(2) : '0.00';
-
-        document.getElementById('semesterGPA10').textContent = semesterGPA10;
-        document.getElementById('semesterGPA4').textContent = semesterGPA4;
-      }
-
-      function calculateRequiredGrades(desiredGPA, totalCredits, currentPoints4, currentCredits) {
-        const program = document.getElementById('programSelect').value;
-        const totalRequiredCredits = program === 'bachelor' ? 150 : 180;
-        const remainingCredits = totalRequiredCredits - currentCredits;
-        if (remainingCredits <= 0) return { message: `Đã đủ số tín chỉ để tốt nghiệp (${totalRequiredCredits} tín chỉ).` };
-
-        const targetPoints = desiredGPA * totalRequiredCredits;
-        const remainingPoints = targetPoints - currentPoints4;
-
-        const creditsPerCourse = 3;
-        const maxCourses = Math.ceil(remainingCredits / creditsPerCourse);
-
-        let minACount = Infinity;
-        let minBPlusCount = Infinity;
-        let bestBCount = 0;
-        let possible = false;
-
-        for (let aCount = 0; aCount <= maxCourses; aCount++) {
-          for (let bPlusCount = 0; bPlusCount <= maxCourses - aCount; bPlusCount++) {
-            const pointsFromA = aCount * 4.0 * creditsPerCourse;
-            const pointsFromBPlus = bPlusCount * 3.5 * creditsPerCourse;
-            const remainingPointsAfterABPlus = remainingPoints - pointsFromA - pointsFromBPlus;
-            const bCount = Math.ceil(remainingPointsAfterABPlus / (3.0 * creditsPerCourse));
-            const totalCourses = aCount + bPlusCount + bCount;
-
-            if (remainingPointsAfterABPlus >= 0 && totalCourses * creditsPerCourse <= remainingCredits && bCount >= 0) {
-              if (aCount < minACount || (aCount === minACount && bPlusCount < minBPlusCount)) {
-                minACount = aCount;
-                minBPlusCount = bPlusCount;
-                bestBCount = bCount;
-                possible = true;
-              }
-            }
-          }
-        }
-
-        if (!possible) {
-          return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
-        }
-
-        return { message: `Cần ${minACount} môn điểm A, ${minBPlusCount} môn điểm B+, và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}.` };
-      }
-
-      function calculateRequiredGradesUI() {
-        const desiredGPA = parseFloat(document.getElementById('desiredGPA').value);
-        if (isNaN(desiredGPA) || desiredGPA < 0 || desiredGPA > 4) {
-          alert("Vui lòng nhập GPA mong muốn hợp lệ (0-4).");
+      const subjects = [];
+      rows.forEach(row => {
+        const cols = row.split('\t').map(col => col.trim());
+        if (cols.length < 11) {
+          document.getElementById('errorMessage').innerText = 'Dữ liệu đầu vào không đủ cột!';
           return;
         }
+        const subject = {
+          semester: cols[1] || '',
+          name: cols[4] || '',
+          credits: parseFloat(cols[5]) || 0,
+          formula: cols[6] || '',
+          bt: cols[7] ? parseFloat(cols[7]) : null,
+          ck: cols[8] ? parseFloat(cols[8]) : null,
+          da: cols[9] ? parseFloat(cols[9]) : null,
+          gk: cols[10] ? parseFloat(cols[10]) : null
+        };
+        subjects.push(subject);
+      });
 
-        let totalPoints4 = 0;
-        let totalCredits = 0;
-        const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
-        rows.forEach(row => {
-          const credits = parseFloat(row.cells[2].textContent) || 0;
-          const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
-          const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
-          if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
-            totalPoints4 += gpa4 * credits;
-            totalCredits += credits;
+      subjects.forEach(subject => {
+        const gpa10 = calculateGPA10(subject);
+        const gpa4 = calculateGPA4(gpa10);
+        const letter = getLetterGrade(gpa10);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${subject.semester}</td>
+          <td>${subject.name}</td>
+          <td>${subject.credits || ''}</td>
+          <td>${subject.formula}</td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.bt !== null ? subject.bt : ''}" onchange="updateGPA(this)"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.ck !== null ? subject.ck : ''}" onchange="updateGPA(this)"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.da !== null ? subject.da : ''}" onchange="updateGPA(this)"></td>
+          <td><input type="number" step="0.1" min="0" max="10" value="${subject.gk !== null ? subject.gk : ''}" onchange="updateGPA(this)"></td>
+          <td class="gpa10">${gpa10}</td>
+          <td class="gpa4">${gpa4}</td>
+          <td class="letter">${letter}</td>
+        `;
+        tableBody.appendChild(row);
+
+        if (subject.ck !== null && !isNaN(subject.ck)) {
+          const sem = subject.semester;
+          if (!semesterGPA[sem]) {
+            semesterGPA[sem] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
           }
-        });
+          const gpa10Val = parseFloat(gpa10) || 0;
+          const gpa4Val = parseFloat(gpa4) || 0;
+          if (subject.credits > 0 && gpa10Val > 0) {
+            semesterGPA[sem].totalPoints10 += gpa10Val * subject.credits;
+            semesterGPA[sem].totalPoints4 += gpa4Val * subject.credits;
+            semesterGPA[sem].totalCredits += subject.credits;
+          }
+        }
+      });
 
-        const gradeAdvice = calculateRequiredGrades(desiredGPA, totalCredits, totalPoints4, totalCredits);
-        document.getElementById('gradeAdvice').innerHTML = `<p>${gradeAdvice.message}</p>`;
+      for (const [sem, data] of Object.entries(semesterGPA)) {
+        const gpa10 = data.totalCredits ? (data.totalPoints10 / data.totalCredits).toFixed(2) : '0.00';
+        const gpa4 = data.totalCredits ? (data.totalPoints4 / data.totalCredits).toFixed(2) : '0.00';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="2">${sem}</td>
+          <td colspan="6"></td>
+          <td>${gpa10}</td>
+          <td>${gpa4}</td>
+          <td></td>
+        `;
+        gpaSummary.appendChild(row);
       }
-    </script>
+
+      updateSemesterGPA();
+    }
+
+    function updateGPA(input) {
+      document.getElementById('errorMessage').innerText = '';
+      const row = input.parentElement.parentElement;
+      const subject = {
+        formula: row.cells[3].textContent,
+        bt: parseFloat(row.cells[4].querySelector('input').value) || null,
+        ck: parseFloat(row.cells[5].querySelector('input').value) || null,
+        da: parseFloat(row.cells[6].querySelector('input').value) || null,
+        gk: parseFloat(row.cells[7].querySelector('input').value) || null,
+        credits: parseFloat(row.cells[2].textContent) || 0,
+        semester: row.cells[0].textContent
+      };
+
+      const gpa10 = calculateGPA10(subject);
+      row.querySelector('.gpa10').textContent = gpa10;
+      const gpa4 = calculateGPA4(gpa10);
+      row.querySelector('.gpa4').textContent = gpa4;
+      row.querySelector('.letter').textContent = getLetterGrade(gpa10);
+
+      semesterGPA = {};
+      const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
+      rows.forEach(row => {
+        const credits = parseFloat(row.cells[2].textContent) || 0;
+        const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
+        const gpa10 = parseFloat(row.querySelector('.gpa10').textContent) || 0;
+        const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
+        const semester = row.cells[0].textContent;
+
+        if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
+          if (!semesterGPA[semester]) {
+            semesterGPA[semester] = { totalPoints10: 0, totalPoints4: 0, totalCredits: 0 };
+          }
+          semesterGPA[semester].totalPoints10 += gpa10 * credits;
+          semesterGPA[semester].totalPoints4 += gpa4 * credits;
+          semesterGPA[semester].totalCredits += credits;
+        }
+      });
+
+      updateSemesterGPA();
+    }
+
+    function updateSemesterGPA() {
+      let totalPoints10 = 0;
+      let totalPoints4 = 0;
+      let totalCredits = 0;
+
+      for (const [sem, data] of Object.entries(semesterGPA)) {
+        totalPoints10 += data.totalPoints10;
+        totalPoints4 += data.totalPoints4;
+        totalCredits += data.totalCredits;
+      }
+
+      const semesterGPA10 = totalCredits ? (totalPoints10 / totalCredits).toFixed(2) : '0.00';
+      const semesterGPA4 = totalCredits ? (totalPoints4 / totalCredits).toFixed(2) : '0.00';
+
+      document.getElementById('semesterGPA10').textContent = semesterGPA10;
+      document.getElementById('semesterGPA4').textContent = semesterGPA4;
+    }
+
+    function calculateRequiredGrades(desiredGPA, totalCredits, currentPoints4, currentCredits) {
+      const program = document.getElementById('programSelect').value;
+      const totalRequiredCredits = program === 'bachelor' ? 150 : 180;
+      const remainingCredits = totalRequiredCredits - currentCredits;
+      if (remainingCredits <= 0) return { message: `Đã đủ số tín chỉ để tốt nghiệp (${totalRequiredCredits} tín chỉ).` };
+
+      const targetPoints = desiredGPA * totalRequiredCredits;
+      const remainingPoints = targetPoints - currentPoints4;
+
+      const creditsPerCourse = 3;
+      const maxCourses = Math.ceil(remainingCredits / creditsPerCourse);
+
+      let minACount = Infinity;
+      let minBPlusCount = Infinity;
+      let bestBCount = 0;
+      let possible = false;
+
+      for (let aCount = 0; aCount <= maxCourses; aCount++) {
+        for (let bPlusCount = 0; bPlusCount <= maxCourses - aCount; bPlusCount++) {
+          const pointsFromA = aCount * 4.0 * creditsPerCourse;
+          const pointsFromBPlus = bPlusCount * 3.5 * creditsPerCourse;
+          const remainingPointsAfterABPlus = remainingPoints - pointsFromA - pointsFromBPlus;
+          const bCount = Math.ceil(remainingPointsAfterABPlus / (3.0 * creditsPerCourse));
+          const totalCourses = aCount + bPlusCount + bCount;
+
+          if (remainingPointsAfterABPlus >= 0 && totalCourses * creditsPerCourse <= remainingCredits && bCount >= 0) {
+            if (aCount < minACount || (aCount === minACount && bPlusCount < minBPlusCount)) {
+              minACount = aCount;
+              minBPlusCount = bPlusCount;
+              bestBCount = bCount;
+              possible = true;
+            }
+          }
+        }
+      }
+
+      if (!possible) {
+        return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
+      }
+
+      return { message: `Cần ${minACount} môn điểm A, ${minBPlusCount} môn điểm B+, và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}.` };
+    }
+
+    function calculateRequiredGradesUI() {
+      const desiredGPA = parseFloat(document.getElementById('desiredGPA').value);
+      if (isNaN(desiredGPA) || desiredGPA < 0 || desiredGPA > 4) {
+        alert("Vui lòng nhập GPA mong muốn hợp lệ (0-4).");
+        return;
+      }
+
+      let totalPoints4 = 0;
+      let totalCredits = 0;
+      const rows = Array.from(document.querySelectorAll('#gpaTable tbody tr'));
+      rows.forEach(row => {
+        const credits = parseFloat(row.cells[2].textContent) || 0;
+        const gpa4 = parseFloat(row.querySelector('.gpa4').textContent) || 0;
+        const ck = parseFloat(row.cells[5].querySelector('input').value) || null;
+        if (credits > 0 && ck !== null && !isNaN(ck) && gpa4 > 0) {
+          totalPoints4 += gpa4 * credits;
+          totalCredits += credits;
+        }
+      });
+
+      const gradeAdvice = calculateRequiredGrades(desiredGPA, totalCredits, totalPoints4, totalCredits);
+      document.getElementById('gradeAdvice').innerHTML = `<p>${gradeAdvice.message}</p>`;
+    }
+
+    // Column resizing functionality
+    document.querySelectorAll('.excel-table th').forEach(header => {
+      header.addEventListener('mousedown', (e) => {
+        if (e.offsetX > header.offsetWidth - 10) {
+          const startX = e.clientX;
+          const startWidth = header.offsetWidth;
+          const onMouseMove = (moveEvent) => {
+            const newWidth = startWidth + (moveEvent.clientX - startX);
+            if (newWidth > 50) {
+              header.style.width = `${newWidth}px`;
+              header.style.minWidth = `${newWidth}px`;
+            }
+          };
+          const onMouseUp = () => {
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+          };
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
