@@ -33,36 +33,6 @@
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       padding: 20px;
     }
-    .modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      transition: opacity 0.3s ease;
-    }
-    .modal-content {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 20px;
-      text-align: center;
-      width: 90%;
-      max-width: 400px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { transform: translateY(-20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .modal-hidden {
-      display: none;
-    }
     textarea, input, select, button {
       font-family: 'Roboto', sans-serif;
       font-size: 14px;
@@ -172,20 +142,9 @@
   </style>
 </head>
 <body>
-  <div id="introModal" class="modal">
-    <div class="modal-content">
-      <h2>THÔNG BÁO</h2>
-      <p>Hiện tại TINHGPA chỉ hoạt động đúng với khoa ĐT-VT của DUT. (sẽ update thêm)</p>
-      <p><a href="https://github.com/taviny/tinhgpa/blob/main/README.md" target="_blank">Bạn chưa biết cách sử dụng TINHGPA?</a></p>
-      <p id="mobileNotice" class="hidden">Hiện tại TINHGPA chưa hỗ trợ giao diện mobile!</p>
-      <button onclick="closeModal()">Đóng</button>
-    </div>
-  </div>
-
   <div class="container">
     <h1>ƯỚC LƯỢNG ĐIỂM GPA</h1>
     <div class="links">
-      <button onclick="window.open('https://nangbuoctuoitho.org/quyen-gop/', '_blank')">DONATE</button>
       <button onclick="window.open('https://github.com/taviny/tinhgpa/blob/main/README.md', '_blank')">HƯỚNG DẪN</button>
     </div>
 
@@ -245,16 +204,6 @@
   </div>
 
   <script>
-    window.onload = function() {
-      if (window.innerWidth < 768) {
-        document.getElementById('mobileNotice').classList.remove('hidden');
-      }
-    };
-
-    function closeModal() {
-      document.getElementById('introModal').classList.add('modal-hidden');
-    }
-
     let semesterGPA = {};
 
     function calculateGPA10(subject) {
@@ -316,8 +265,8 @@
       gpa10 = parseFloat(gpa10) || 0;
       if (gpa10 >= 9.5) return 4.0;
       if (gpa10 >= 8.5) return 4.0;
-      if (gpa10 >= 8.0) return 3.5;
-      if (gpa10 >= 7.0) return 3.0;
+      if (gpa10 >= 8.0) return 3.5; // B+
+      if (gpa10 >= 7.0) return 3.0; // B
       if (gpa10 >= 6.5) return 2.5;
       if (gpa10 >= 5.5) return 2.0;
       if (gpa10 >= 5.0) return 1.5;
@@ -329,7 +278,7 @@
       gpa10 = parseFloat(gpa10) || 0;
       if (gpa10 >= 9.5) return 'A+';
       if (gpa10 >= 8.5) return 'A';
-      if (gpa10 >= 8.0) return 'B+';
+      if (gpa10 >= 8.0) return 'B+'; // Added B+
       if (gpa10 >= 7.0) return 'B';
       if (gpa10 >= 6.5) return 'C+';
       if (gpa10 >= 5.5) return 'C';
@@ -492,20 +441,25 @@
       const maxCourses = Math.ceil(remainingCredits / creditsPerCourse);
 
       let minACount = Infinity;
+      let minBPlusCount = Infinity;
       let bestBCount = 0;
       let possible = false;
 
       for (let aCount = 0; aCount <= maxCourses; aCount++) {
-        const pointsFromA = aCount * 4.0 * creditsPerCourse;
-        const remainingPointsAfterA = remainingPoints - pointsFromA;
-        const bCount = Math.ceil(remainingPointsAfterA / (3.0 * creditsPerCourse));
-        const totalCourses = aCount + bCount;
+        for (let bPlusCount = 0; bPlusCount <= maxCourses - aCount; bPlusCount++) {
+          const pointsFromA = aCount * 4.0 * creditsPerCourse;
+          const pointsFromBPlus = bPlusCount * 3.5 * creditsPerCourse;
+          const remainingPointsAfterABPlus = remainingPoints - pointsFromA - pointsFromBPlus;
+          const bCount = Math.ceil(remainingPointsAfterABPlus / (3.0 * creditsPerCourse));
+          const totalCourses = aCount + bPlusCount + bCount;
 
-        if (remainingPointsAfterA >= 0 && totalCourses * creditsPerCourse <= remainingCredits && bCount >= 0) {
-          if (aCount < minACount) {
-            minACount = aCount;
-            bestBCount = bCount;
-            possible = true;
+          if (remainingPointsAfterABPlus >= 0 && totalCourses * creditsPerCourse <= remainingCredits && bCount >= 0) {
+            if (aCount < minACount || (aCount === minACount && bPlusCount < minBPlusCount)) {
+              minACount = aCount;
+              minBPlusCount = bPlusCount;
+              bestBCount = bCount;
+              possible = true;
+            }
           }
         }
       }
@@ -514,7 +468,7 @@
         return { message: `Không thể đạt được GPA ${desiredGPA} với số tín chỉ còn lại (${remainingCredits} tín chỉ).` };
       }
 
-      return { message: `Cần ${minACount} môn điểm A và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}.` };
+      return { message: `Cần ${minACount} môn điểm A, ${minBPlusCount} môn điểm B+, và ${bestBCount} môn điểm B để đạt GPA ${desiredGPA}.` };
     }
 
     function calculateRequiredGradesUI() {
